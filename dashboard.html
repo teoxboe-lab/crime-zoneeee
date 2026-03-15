@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrimeZone — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#F5C518;--gold-dark:#C49A0E;--red:#E8253A;
+  --dark:#0A0A0F;--dark2:#111118;--dark3:#1A1A25;
+  --border:rgba(245,197,24,0.12);--text:#E8E8F0;--muted:#6B6B80;
+  --green:#00E676;--orange:#F97316;--cyan:#06B6D4;--purple:#8B5CF6;
+  --sidebar:220px
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{
+  width:var(--sidebar);background:var(--dark2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  position:fixed;top:0;left:0;bottom:0;z-index:50
+}
+.sidebar-logo{
+  padding:1.5rem;border-bottom:1px solid var(--border);
+  font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold)
+}
+.sidebar-logo span{color:var(--red)}
+.sidebar-user{
+  padding:1rem 1.5rem;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:.75rem
+}
+.user-avatar{
+  width:36px;height:36px;border-radius:50%;
+  border:2px solid var(--skill-border,var(--gold));
+  object-fit:cover;flex-shrink:0
+}
+.user-info .user-name{font-size:.9rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.user-info .user-skill{font-size:.7rem;color:var(--skill-color,var(--gold));font-family:'Share Tech Mono',monospace}
+.sidebar-nav{flex:1;padding:1rem 0}
+.nav-item{
+  display:flex;align-items:center;gap:.75rem;
+  padding:.75rem 1.5rem;font-size:.95rem;font-weight:600;
+  cursor:pointer;transition:all .2s;border-left:2px solid transparent;
+  color:var(--muted);letter-spacing:.03em
+}
+.nav-item:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(245,197,24,.05)}
+.nav-item .nav-icon{font-size:1rem;width:18px;text-align:center}
+.sidebar-bottom{padding:1rem 1.5rem;border-top:1px solid var(--border)}
+.logout-btn{
+  width:100%;background:none;border:1px solid var(--border);
+  color:var(--muted);padding:.6rem;font-family:'Rajdhani',sans-serif;
+  font-size:.85rem;cursor:pointer;transition:all .2s;letter-spacing:.05em
+}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:2rem;max-width:calc(100vw - var(--sidebar))}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2rem;margin-bottom:.25rem}
+.page-sub{color:var(--muted);font-size:.9rem;margin-bottom:2rem;font-family:'Share Tech Mono',monospace}
+
+/* MOEDAS TOP */
+.moedas-top{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.moeda-stat{
+  background:var(--dark2);border:1px solid var(--border);
+  padding:1.25rem 1.5rem;position:relative;overflow:hidden
+}
+.moeda-stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--stat-color,var(--gold))}
+.ms-label{font-size:.7rem;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;font-family:'Share Tech Mono',monospace;margin-bottom:.4rem}
+.ms-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--stat-color,var(--gold))}
+.ms-sub{font-size:.72rem;color:var(--muted);margin-top:.1rem}
+
+/* FABRICAR */
+.panel{background:var(--dark2);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.5rem}
+.panel-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;margin-bottom:1.25rem;display:flex;align-items:center;gap:.5rem}
+.panel-title span{color:var(--gold)}
+
+.fab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem}
+.fab-card{
+  background:var(--dark3);border:1px solid var(--border);
+  padding:1.25rem;cursor:pointer;transition:all .2s;position:relative
+}
+.fab-card:hover{border-color:var(--skill-color,var(--gold));transform:translateY(-2px)}
+.fab-card .fc-icon{font-size:1.5rem;margin-bottom:.5rem;display:block}
+.fab-card .fc-name{font-weight:600;font-size:1rem;margin-bottom:.25rem}
+.fab-card .fc-rarity{font-size:.65rem;font-family:'Share Tech Mono',monospace;color:var(--muted);margin-bottom:.75rem}
+.fab-card .fc-cost{display:flex;justify-content:space-between;align-items:center;font-size:.8rem}
+.fab-card .fc-gs{color:var(--gold);font-weight:700;font-family:'Share Tech Mono',monospace}
+.fab-card .fc-time{color:var(--muted);font-family:'Share Tech Mono',monospace}
+.fab-btn{
+  width:100%;background:var(--gold);color:var(--dark);
+  border:none;padding:.5rem;margin-top:.75rem;
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;
+  cursor:pointer;letter-spacing:.05em;transition:all .2s
+}
+.fab-btn:hover{background:var(--gold-dark)}
+.fab-btn:disabled{background:var(--dark3);color:var(--muted);cursor:not-allowed;border:1px solid var(--border)}
+
+/* PRODUÇÃO EM ANDAMENTO */
+.prod-list{display:flex;flex-direction:column;gap:.75rem}
+.prod-item{
+  background:var(--dark3);border:1px solid var(--border);
+  padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem
+}
+.prod-icon{font-size:1.3rem;flex-shrink:0}
+.prod-info{flex:1}
+.prod-name{font-weight:600;font-size:.95rem;margin-bottom:.3rem}
+.prod-bar-bg{height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin-bottom:.2rem}
+.prod-bar-fill{height:4px;border-radius:2px;background:var(--gold);transition:width 1s linear}
+.prod-time{font-size:.72rem;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.prod-accel{
+  background:none;border:1px solid var(--border);color:var(--gold);
+  padding:.4rem .8rem;font-family:'Rajdhani',sans-serif;font-size:.8rem;
+  cursor:pointer;transition:all .2s;white-space:nowrap
+}
+.prod-accel:hover{background:rgba(245,197,24,.1)}
+
+/* ESTOQUE */
+.estoque-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:.75rem}
+.est-item{
+  background:var(--dark3);border:1px solid var(--border);
+  padding:1rem;text-align:center
+}
+.est-icon{font-size:1.5rem;display:block;margin-bottom:.4rem}
+.est-name{font-size:.85rem;font-weight:600;margin-bottom:.2rem}
+.est-qty{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;color:var(--gold)}
+
+/* MARKETPLACE */
+.mkt-filters{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+.mkt-filter{
+  background:var(--dark3);border:1px solid var(--border);
+  color:var(--muted);padding:.4rem .9rem;
+  font-family:'Rajdhani',sans-serif;font-size:.85rem;
+  cursor:pointer;transition:all .2s
+}
+.mkt-filter.active,.mkt-filter:hover{border-color:var(--gold);color:var(--gold)}
+.mkt-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.mkt-table th{text-align:left;padding:.6rem 1rem;color:var(--muted);font-size:.7rem;letter-spacing:.1em;border-bottom:1px solid var(--border);font-family:'Share Tech Mono',monospace}
+.mkt-table td{padding:.8rem 1rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.mkt-table tr:hover td{background:rgba(255,255,255,.02)}
+.mkt-buy{
+  background:var(--gold);color:var(--dark);border:none;
+  padding:.3rem .9rem;font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;
+  cursor:pointer;transition:all .2s
+}
+.mkt-buy:hover{background:var(--gold-dark)}
+.skill-badge{font-size:.65rem;padding:.15rem .5rem;border-radius:2px;font-family:'Share Tech Mono',monospace}
+.sb-mec{background:rgba(249,115,22,.15);color:#F97316}
+.sb-hac{background:rgba(6,182,212,.15);color:#06B6D4}
+.sb-arm{background:rgba(139,92,246,.15);color:#8B5CF6}
+
+/* RECEITAS */
+.receita-list{display:flex;flex-direction:column;gap:.75rem}
+.rec-item{
+  background:var(--dark3);border:1px solid var(--border);
+  padding:1.25rem;display:flex;align-items:center;gap:1rem
+}
+.rec-lock{font-size:1.3rem;flex-shrink:0}
+.rec-info{flex:1}
+.rec-name{font-weight:600;font-size:1rem;margin-bottom:.3rem}
+.rec-ings{display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.5rem}
+.rec-ing{font-size:.7rem;border:1px solid var(--border);padding:.15rem .45rem;font-family:'Share Tech Mono',monospace}
+.rec-ing.locked{filter:blur(4px);user-select:none}
+.rec-chance{display:flex;align-items:center;gap:.5rem}
+.rec-bar-bg{width:100px;height:3px;background:rgba(255,255,255,.06);border-radius:2px}
+.rec-bar-fill{height:3px;border-radius:2px;background:var(--gold)}
+.rec-pct{font-size:.72rem;color:var(--muted);font-family:'Share Tech Mono',monospace}
+.rec-fab-btn{
+  background:none;border:1px solid var(--gold);color:var(--gold);
+  padding:.5rem 1rem;font-family:'Rajdhani',sans-serif;font-size:.85rem;font-weight:700;
+  cursor:pointer;transition:all .2s;white-space:nowrap
+}
+.rec-fab-btn:hover{background:rgba(245,197,24,.1)}
+.rec-fab-btn:disabled{border-color:var(--border);color:var(--muted);cursor:not-allowed}
+
+/* VENDA PRIVADA */
+.vp-form{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{display:flex;flex-direction:column;gap:.4rem}
+.form-label{font-size:.75rem;color:var(--muted);letter-spacing:.08em;font-family:'Share Tech Mono',monospace}
+.form-input,.form-select{
+  background:var(--dark3);border:1px solid var(--border);
+  color:var(--text);padding:.7rem 1rem;
+  font-family:'Rajdhani',sans-serif;font-size:.95rem;
+  transition:border-color .2s;width:100%
+}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--gold)}
+.form-select option{background:var(--dark3)}
+.send-btn{
+  background:var(--gold);color:var(--dark);border:none;
+  padding:.8rem 2rem;font-family:'Rajdhani',sans-serif;
+  font-size:1rem;font-weight:700;cursor:pointer;
+  letter-spacing:.08em;transition:all .2s;
+  clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);
+  grid-column:span 2
+}
+.send-btn:hover{background:var(--gold-dark)}
+
+/* NOTIFICAÇÕES */
+.notif-list{display:flex;flex-direction:column;gap:.5rem}
+.notif-item{
+  background:var(--dark3);border:1px solid var(--border);
+  padding:1rem 1.25rem;display:flex;align-items:center;gap:.75rem;
+  border-left:2px solid var(--notif-color,var(--border))
+}
+.notif-item.accept{--notif-color:var(--green)}
+.notif-item.pending{--notif-color:var(--gold)}
+.notif-item.info{--notif-color:var(--cyan)}
+.notif-icon{font-size:1rem;flex-shrink:0}
+.notif-text{flex:1;font-size:.9rem}
+.notif-time{font-size:.7rem;color:var(--muted);font-family:'Share Tech Mono',monospace;white-space:nowrap}
+.notif-actions{display:flex;gap:.4rem}
+.notif-ok{background:var(--green);color:var(--dark);border:none;padding:.3rem .7rem;font-family:'Rajdhani',sans-serif;font-size:.8rem;font-weight:700;cursor:pointer}
+.notif-no{background:none;border:1px solid var(--border);color:var(--muted);padding:.3rem .7rem;font-family:'Rajdhani',sans-serif;font-size:.8rem;cursor:pointer}
+
+/* PAGES */
+.page{display:none}
+.page.active{display:block}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:2rem;right:2rem;z-index:999;
+  background:var(--dark2);border:1px solid var(--gold);
+  padding:1rem 1.5rem;font-size:.9rem;
+  animation:fadeUp .3s ease;display:none
+}
+.toast.show{display:block}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">Crime<span>Zone</span></div>
+  <div class="sidebar-user">
+    <img class="user-avatar" id="userAvatar" src="" alt="">
+    <div class="user-info">
+      <div class="user-name" id="userName">Carregando...</div>
+      <div class="user-skill" id="userSkill">---</div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('fabricar')"><span class="nav-icon">⚙</span> Fabricar</div>
+    <div class="nav-item" onclick="showPage('estoque')"><span class="nav-icon">📦</span> Estoque</div>
+    <div class="nav-item" onclick="showPage('receitas')"><span class="nav-icon">📋</span> Receitas</div>
+    <div class="nav-item" onclick="showPage('marketplace')"><span class="nav-icon">🏪</span> Marketplace</div>
+    <div class="nav-item" onclick="showPage('venda-privada')"><span class="nav-icon">🤝</span> Venda Privada</div>
+    <div class="nav-item" onclick="showPage('notificacoes')"><span class="nav-icon">🔔</span> Notificações <span id="notifBadge" style="display:none;background:var(--red);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:2px;margin-left:auto">0</span></div>
+    <div class="nav-item" onclick="showPage('saque')"><span class="nav-icon">💸</span> Saque PIX</div>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="logout-btn" onclick="logout()">SAIR DA CONTA</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-title">DASHBOARD</div>
+    <div class="page-sub" id="dashGreeting">// BEM-VINDO DE VOLTA //</div>
+    <div class="moedas-top">
+      <div class="moeda-stat" style="--stat-color:var(--gold)">
+        <div class="ms-label">GoldStack</div>
+        <div class="ms-val" id="gsBalance">0</div>
+        <div class="ms-sub">Moeda premium</div>
+      </div>
+      <div class="moeda-stat" style="--stat-color:var(--green)">
+        <div class="ms-label">DollarZ</div>
+        <div class="ms-val" id="dzBalance">0</div>
+        <div class="ms-sub">Disponível p/ saque</div>
+      </div>
+      <div class="moeda-stat" style="--stat-color:var(--cyan)">
+        <div class="ms-label">Itens em estoque</div>
+        <div class="ms-val" id="stockCount">0</div>
+        <div class="ms-sub">Total fabricado</div>
+      </div>
+      <div class="moeda-stat" style="--stat-color:var(--orange)">
+        <div class="ms-label">Produções ativas</div>
+        <div class="ms-val" id="activeProds">0</div>
+        <div class="ms-sub">Em andamento</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">⚡ PRODUÇÕES EM ANDAMENTO</div>
+      <div class="prod-list" id="prodList">
+        <div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Nenhuma produção ativa //</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">🔔 NOTIFICAÇÕES RECENTES</div>
+      <div class="notif-list" id="dashNotifs">
+        <div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Sem notificações //</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FABRICAR -->
+  <div class="page" id="page-fabricar">
+    <div class="page-title">FABRICAR ITENS</div>
+    <div class="page-sub">// USE GOLDSTACK PARA PRODUZIR //</div>
+    <div class="panel">
+      <div class="panel-title">⚙ <span id="skillFabTitle">SEUS ITENS</span></div>
+      <div class="fab-grid" id="fabGrid"></div>
+    </div>
+  </div>
+
+  <!-- ESTOQUE -->
+  <div class="page" id="page-estoque">
+    <div class="page-title">ESTOQUE</div>
+    <div class="page-sub">// ITENS FABRICADOS DISPONÍVEIS //</div>
+    <div class="panel">
+      <div class="estoque-grid" id="estoqueGrid">
+        <div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Estoque vazio //</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEITAS -->
+  <div class="page" id="page-receitas">
+    <div class="page-title">RECEITAS DO DOLLARZ</div>
+    <div class="page-sub">// COMBINE ITENS E FABRIQUE DOLLARZ //</div>
+    <div class="panel">
+      <div class="receita-list" id="receitaList">
+        <div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Carregando receitas... //</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MARKETPLACE -->
+  <div class="page" id="page-marketplace">
+    <div class="page-title">MARKETPLACE</div>
+    <div class="page-sub">// COMPRE E VENDA COM OUTROS JOGADORES // TAXA: 10% //</div>
+    <div class="panel">
+      <div class="mkt-filters">
+        <div class="mkt-filter active" onclick="filterMkt(this,'all')">Todos</div>
+        <div class="mkt-filter" onclick="filterMkt(this,'mec')">🔧 Mecânico</div>
+        <div class="mkt-filter" onclick="filterMkt(this,'hac')">💻 Hacker</div>
+        <div class="mkt-filter" onclick="filterMkt(this,'arm')">🔫 Armeiro</div>
+      </div>
+      <table class="mkt-table">
+        <thead>
+          <tr>
+            <th>ITEM</th><th>SKILL</th><th>QTD</th><th>PREÇO</th><th>VENDEDOR</th><th></th>
+          </tr>
+        </thead>
+        <tbody id="mktBody">
+          <tr><td colspan="6" style="color:var(--muted);padding:2rem;text-align:center;font-family:'Share Tech Mono',monospace">// Marketplace vazio //</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-title">📤 VENDER NO MARKETPLACE</div>
+      <div class="vp-form">
+        <div class="form-group">
+          <label class="form-label">ITEM</label>
+          <select class="form-select" id="mktItem"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">QUANTIDADE</label>
+          <input class="form-input" type="number" id="mktQty" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">PREÇO POR ITEM (GS)</label>
+          <input class="form-input" type="number" id="mktPrice" min="1" value="10">
+        </div>
+        <div class="form-group" style="justify-content:flex-end">
+          <label class="form-label">TAXA DO SITE: 10%</label>
+          <div style="font-size:.85rem;color:var(--muted)">Você recebe: <span id="mktRecebe" style="color:var(--gold);font-weight:700">0 GS</span></div>
+        </div>
+        <button class="send-btn" onclick="publicarMarketplace()">PUBLICAR NO MARKETPLACE ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VENDA PRIVADA -->
+  <div class="page" id="page-venda-privada">
+    <div class="page-title">VENDA PRIVADA</div>
+    <div class="page-sub">// NEGOCIE DIRETO // TAXA: 5% //</div>
+    <div class="panel">
+      <div class="panel-title">📤 ENVIAR PROPOSTA</div>
+      <div class="vp-form">
+        <div class="form-group">
+          <label class="form-label">@ DO COMPRADOR</label>
+          <input class="form-input" type="text" id="vpDestino" placeholder="usuario@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">TIPO DE PAGAMENTO</label>
+          <select class="form-select" id="vpPagamento">
+            <option value="goldstack">GoldStack</option>
+            <option value="troca">Troca de Itens</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">ITEM A ENVIAR</label>
+          <select class="form-select" id="vpItem"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">QUANTIDADE</label>
+          <input class="form-input" type="number" id="vpQty" min="1" value="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">PREÇO (GS) ou ITEM DE TROCA</label>
+          <input class="form-input" type="text" id="vpPreco" placeholder="ex: 50 GS ou 10× Armas">
+        </div>
+        <div class="form-group">
+          <label class="form-label">TAXA DO SITE: 5%</label>
+          <div style="font-size:.8rem;color:var(--muted)">Comprador tem 24h pra responder</div>
+        </div>
+        <button class="send-btn" onclick="enviarVendaPrivada()">ENVIAR PROPOSTA ▶</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICAÇÕES -->
+  <div class="page" id="page-notificacoes">
+    <div class="page-title">NOTIFICAÇÕES</div>
+    <div class="page-sub">// PROPOSTAS E ALERTAS //</div>
+    <div class="panel">
+      <div class="notif-list" id="notifList">
+        <div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Sem notificações //</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SAQUE -->
+  <div class="page" id="page-saque">
+    <div class="page-title">SAQUE PIX</div>
+    <div class="page-sub">// CONVERTA DOLLARZ EM DINHEIRO REAL //</div>
+    <div class="panel">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem">
+        <div class="moeda-stat" style="--stat-color:var(--green)">
+          <div class="ms-label">DollarZ disponível</div>
+          <div class="ms-val" id="dzSaque">0</div>
+        </div>
+        <div class="moeda-stat" style="--stat-color:var(--gold)">
+          <div class="ms-label">Taxa de conversão</div>
+          <div class="ms-val">15%</div>
+          <div class="ms-sub">Descontado no saque</div>
+        </div>
+      </div>
+      <div class="vp-form">
+        <div class="form-group">
+          <label class="form-label">CHAVE PIX</label>
+          <input class="form-input" type="text" id="pixKey" placeholder="CPF, email, telefone ou chave aleatória">
+        </div>
+        <div class="form-group">
+          <label class="form-label">QUANTIDADE DE DOLLARZ</label>
+          <input class="form-input" type="number" id="dzQty" min="1" placeholder="Mínimo: 100 DZ">
+        </div>
+        <div class="form-group">
+          <label class="form-label">VOCÊ RECEBE</label>
+          <div style="font-size:1.5rem;font-family:'Bebas Neue',sans-serif;color:var(--green)" id="pixRecebe">R$ 0,00</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">TAXA (15%)</label>
+          <div style="font-size:.9rem;color:var(--muted)" id="pixTaxa">R$ 0,00</div>
+        </div>
+        <button class="send-btn" onclick="solicitarSaque()">SOLICITAR SAQUE ▶</button>
+      </div>
+      <div style="margin-top:1rem;font-size:.8rem;color:var(--muted);font-family:'Share Tech Mono',monospace">
+        // Saques processados em até 48h úteis. Mínimo: 100 DollarZ //
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, collection,
+  query, where, onSnapshot, orderBy, serverTimestamp, increment
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBZUVGIfEPCoI9yJ159DhUKrC2_lPV9Vv0",
+    authDomain: "rendaextra-c0084.firebaseapp.com",
+    projectId: "rendaextra-c0084",
+    storageBucket: "rendaextra-c0084.firebasestorage.app",
+    messagingSenderId: "880584827698",
+    appId: "1:880584827698:web:d9920bfabf1b93ad9aad2b",
+    measurementId: "G-QHLXVRGRDJ"
+  };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+const SKILL_ITEMS = {
+  mec: [
+    {id:'peca',nome:'Peça Simples',icon:'🔧',raridade:'Comum',custo:1,tempo:30,unidade:'min',qtd:100},
+    {id:'motor',nome:'Motor',icon:'⚙️',raridade:'Raro',custo:4,tempo:4,unidade:'h',qtd:60},
+    {id:'chassis',nome:'Chassis',icon:'🚗',raridade:'Raro',custo:5,tempo:5,unidade:'h',qtd:35},
+    {id:'carro',nome:'Carro Completo',icon:'🏎️',raridade:'Épico',custo:12,tempo:8,unidade:'h',qtd:10}
+  ],
+  hac: [
+    {id:'dado',nome:'Dado Hackeado',icon:'💾',raridade:'Comum',custo:1,tempo:15,unidade:'min',qtd:100},
+    {id:'crypto',nome:'Crypto',icon:'💻',raridade:'Comum',custo:2,tempo:1,unidade:'h',qtd:80},
+    {id:'vip',nome:'Acesso VIP',icon:'🔑',raridade:'Raro',custo:4,tempo:3,unidade:'h',qtd:40},
+    {id:'senha',nome:'Senha Mestra',icon:'🔐',raridade:'Épico',custo:10,tempo:6,unidade:'h',qtd:15}
+  ],
+  arm: [
+    {id:'municao',nome:'Munição',icon:'🔫',raridade:'Comum',custo:1,tempo:10,unidade:'min',qtd:200},
+    {id:'colete',nome:'Colete',icon:'🦺',raridade:'Comum',custo:2,tempo:45,unidade:'min',qtd:60},
+    {id:'arma',nome:'Arma',icon:'⚔️',raridade:'Raro',custo:4,tempo:2,unidade:'h',qtd:30},
+    {id:'explosivo',nome:'Explosivo',icon:'💣',raridade:'Épico',custo:8,tempo:5,unidade:'h',qtd:10}
+  ]
+};
+
+const SKILL_COLORS = {mec:'#F97316',hac:'#06B6D4',arm:'#8B5CF6'};
+const SKILL_NAMES = {mec:'Mecânico',hac:'Hacker',arm:'Armeiro'};
+
+let currentUser = null;
+let userData = null;
+
+window.logout = async () => { await signOut(auth); window.location.href='/crime-zone11/index.html'; };
+
+window.showPage = (id) => {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+};
+
+window.showToast = (msg) => {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+};
+
+function loadFabGrid(skill, qtdSkills) {
+  const items = SKILL_ITEMS[skill] || [];
+  const multiplier = {1:1,2:3,3:6,4:10}[qtdSkills] || 1;
+  const color = SKILL_COLORS[skill];
+  document.getElementById('skillFabTitle').textContent = SKILL_NAMES[skill].toUpperCase() + ' — FABRICAÇÃO';
+  const grid = document.getElementById('fabGrid');
+  grid.innerHTML = items.map(item => {
+    const custoReal = item.custo * multiplier;
+    const qtdReal = Math.round(item.qtd / multiplier);
+    return `
+    <div class="fab-card" style="--skill-color:${color}">
+      <span class="fc-icon">${item.icon}</span>
+      <div class="fc-name">${item.nome}</div>
+      <div class="fc-rarity">${item.raridade} • Produz ${qtdReal} itens</div>
+      <div class="fc-cost">
+        <span class="fc-gs">${custoReal} GS</span>
+        <span class="fc-time">${item.tempo}${item.unidade}</span>
+      </div>
+      <button class="fab-btn" onclick="fabricar('${item.id}','${item.nome}',${custoReal},${item.tempo},${item.unidade==='min'?item.tempo*60:item.tempo*3600},${qtdReal})">
+        FABRICAR
+      </button>
+    </div>`;
+  }).join('');
+}
+
+window.fabricar = async (id, nome, custo, tempo, segundos, qtd) => {
+  if (!userData || userData.goldstack < custo) {
+    showToast('GoldStack insuficiente!'); return;
+  }
+  const fim = new Date(Date.now() + segundos * 1000);
+  await addDoc(collection(db,'producoes'), {
+    uid: currentUser.uid, itemId: id, itemNome: nome,
+    qtd, custo, inicio: serverTimestamp(), fim, concluido: false
+  });
+  await updateDoc(doc(db,'usuarios',currentUser.uid), { goldstack: increment(-custo) });
+  showToast(`✅ ${nome} em produção! Pronto em ${tempo}${tempo===1?'':''} min/h`);
+};
+
+window.publicarMarketplace = async () => {
+  const item = document.getElementById('mktItem').value;
+  const qty = parseInt(document.getElementById('mktQty').value);
+  const price = parseInt(document.getElementById('mktPrice').value);
+  if (!item || !qty || !price) { showToast('Preencha todos os campos'); return; }
+  await addDoc(collection(db,'marketplace'), {
+    uid: currentUser.uid, vendedor: userData.nome,
+    skill: userData.skill, item, qty, price,
+    taxa: 0.10, criadoEm: serverTimestamp(), ativo: true
+  });
+  showToast('✅ Item publicado no marketplace!');
+};
+
+window.enviarVendaPrivada = async () => {
+  const destino = document.getElementById('vpDestino').value;
+  const item = document.getElementById('vpItem').value;
+  const qty = parseInt(document.getElementById('vpQty').value);
+  const preco = document.getElementById('vpPreco').value;
+  const pagamento = document.getElementById('vpPagamento').value;
+  if (!destino || !item || !qty || !preco) { showToast('Preencha todos os campos'); return; }
+  await addDoc(collection(db,'vendas_privadas'), {
+    remetente: currentUser.uid, remetenteNome: userData.nome,
+    destinatarioEmail: destino, item, qty, preco, pagamento,
+    taxa: 0.05, status: 'pendente', criadoEm: serverTimestamp(),
+    expiraEm: new Date(Date.now() + 86400000)
+  });
+  showToast('✅ Proposta enviada! Aguardando resposta por 24h.');
+};
+
+window.solicitarSaque = async () => {
+  const pix = document.getElementById('pixKey').value;
+  const qty = parseInt(document.getElementById('dzQty').value);
+  if (!pix || !qty || qty < 100) { showToast('Mínimo 100 DollarZ e informe sua chave PIX'); return; }
+  if (userData.dollarz < qty) { showToast('DollarZ insuficiente!'); return; }
+  await addDoc(collection(db,'saques'), {
+    uid: currentUser.uid, nome: userData.nome, email: userData.email,
+    pixKey: pix, dollarz: qty, taxa: 0.15,
+    valorLiquido: qty * 0.85, status: 'pendente',
+    criadoEm: serverTimestamp()
+  });
+  await updateDoc(doc(db,'usuarios',currentUser.uid), { dollarz: increment(-qty) });
+  showToast(`✅ Saque de R$ ${(qty*0.85).toFixed(2)} solicitado! Processado em 48h.`);
+};
+
+window.filterMkt = (el, skill) => {
+  document.querySelectorAll('.mkt-filter').forEach(f=>f.classList.remove('active'));
+  el.classList.add('active');
+};
+
+document.getElementById('dzQty').addEventListener('input', (e) => {
+  const v = parseFloat(e.target.value) || 0;
+  document.getElementById('pixRecebe').textContent = `R$ ${(v*0.85).toFixed(2)}`;
+  document.getElementById('pixTaxa').textContent = `R$ ${(v*0.15).toFixed(2)}`;
+});
+
+document.getElementById('mktQty').addEventListener('input', calcMktRecebe);
+document.getElementById('mktPrice').addEventListener('input', calcMktRecebe);
+function calcMktRecebe() {
+  const q = parseInt(document.getElementById('mktQty').value)||0;
+  const p = parseInt(document.getElementById('mktPrice').value)||0;
+  document.getElementById('mktRecebe').textContent = Math.round(q*p*0.9)+' GS';
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href='/crime-zone11/index.html'; return; }
+  currentUser = user;
+  const snap = await getDoc(doc(db,'usuarios',user.uid));
+  if (!snap.exists()) { window.location.href='/crime-zone11/index.html'; return; }
+  userData = snap.data();
+
+  document.getElementById('userAvatar').src = user.photoURL || '';
+  document.getElementById('userName').textContent = user.displayName || '';
+  const skill = userData.skill;
+  const color = SKILL_COLORS[skill] || 'var(--gold)';
+  document.getElementById('userSkill').textContent = SKILL_NAMES[skill] || '';
+  document.documentElement.style.setProperty('--skill-color', color);
+  document.documentElement.style.setProperty('--skill-border', color);
+  document.getElementById('gsBalance').textContent = userData.goldstack || 0;
+  document.getElementById('dzBalance').textContent = userData.dollarz || 0;
+  document.getElementById('dzSaque').textContent = userData.dollarz || 0;
+  document.getElementById('dashGreeting').textContent = `// BEM-VINDO, ${(user.displayName||'').split(' ')[0].toUpperCase()} — ${(SKILL_NAMES[skill]||'').toUpperCase()} //`;
+
+  loadFabGrid(skill, userData.totalContas || 1);
+
+  const estoqueSnap = await getDoc(doc(db,'estoques',user.uid));
+  if (estoqueSnap.exists()) {
+    const est = estoqueSnap.data();
+    const grid = document.getElementById('estoqueGrid');
+    const entries = Object.entries(est).filter(([k,v])=>v>0);
+    if (entries.length) {
+      grid.innerHTML = entries.map(([k,v])=>`
+        <div class="est-item">
+          <span class="est-icon">📦</span>
+          <div class="est-name">${k}</div>
+          <div class="est-qty">${v}</div>
+        </div>`).join('');
+    }
+    document.getElementById('stockCount').textContent = entries.reduce((a,[,v])=>a+v,0);
+    const sel = document.getElementById('mktItem');
+    const sel2 = document.getElementById('vpItem');
+    sel.innerHTML = sel2.innerHTML = entries.map(([k])=>`<option value="${k}">${k}</option>`).join('');
+  }
+
+  onSnapshot(query(collection(db,'producoes'),where('uid','==',user.uid),where('concluido','==',false)), snap => {
+    document.getElementById('activeProds').textContent = snap.size;
+    if (!snap.size) {
+      document.getElementById('prodList').innerHTML = `<div style="color:var(--muted);font-size:.9rem;font-family:'Share Tech Mono',monospace">// Nenhuma produção ativa //</div>`;
+      return;
+    }
+    document.getElementById('prodList').innerHTML = snap.docs.map(d => {
+      const p = d.data();
+      const fim = p.fim?.toDate ? p.fim.toDate() : new Date(p.fim);
+      const total = fim - (p.inicio?.toDate ? p.inicio.toDate() : new Date());
+      const restante = Math.max(0, fim - Date.now());
+      const pct = Math.min(100, Math.round((1 - restante/total)*100));
+      const mins = Math.round(restante/60000);
+      return `
+      <div class="prod-item">
+        <span class="prod-icon">⚙️</span>
+        <div class="prod-info">
+          <div class="prod-name">${p.itemNome} <span style="color:var(--muted);font-size:.8rem">×${p.qtd}</span></div>
+          <div class="prod-bar-bg"><div class="prod-bar-fill" style="width:${pct}%"></div></div>
+          <div class="prod-time">${pct}% — ~${mins} min restantes</div>
+        </div>
+        <button class="prod-accel" onclick="acelerarProducao('${d.id}')">⚡ 50 GS / h</button>
+      </div>`;
+    }).join('');
+  });
+
+  onSnapshot(query(collection(db,'receitas'), orderBy('raridade')), snap => {
+    const list = document.getElementById('receitaList');
+    if (!snap.size) { list.innerHTML = `<div style="color:var(--muted);font-family:'Share Tech Mono',monospace">// Sem receitas liberadas ainda //</div>`; return; }
+    list.innerHTML = snap.docs.map(d => {
+      const r = d.data();
+      const ings = r.revelada ? r.ingredientes.map(i=>`<span class="rec-ing">${i}</span>`).join('') :
+        Array(r.slots||4).fill(`<span class="rec-ing locked">???</span>`).join('');
+      const colors = {Comum:'#6B6B80',Raro:'#F97316',Épico:'#8B5CF6',Lendário:'var(--gold)'};
+      const barColor = colors[r.raridade] || 'var(--gold)';
+      return `
+      <div class="rec-item">
+        <span class="rec-lock">${r.revelada?'📋':'🔒'}</span>
+        <div class="rec-info">
+          <div class="rec-name">${r.nome} <span style="font-size:.7rem;color:${barColor};font-family:'Share Tech Mono',monospace">[${r.raridade}]</span></div>
+          <div class="rec-ings">${ings}</div>
+          <div class="rec-chance">
+            <div class="rec-bar-bg"><div class="rec-bar-fill" style="width:${r.chance}%;background:${barColor}"></div></div>
+            <span class="rec-pct">${r.chance}%</span>
+          </div>
+        </div>
+        <button class="rec-fab-btn" ${!r.revelada?'disabled':''} onclick="fabricarDollarz('${d.id}')">
+          ${r.revelada?'FABRICAR DZ':'BLOQUEADA'}
+        </button>
+      </div>`;
+    }).join('');
+  });
+
+  onSnapshot(query(collection(db,'notificacoes'),where('uid','==',user.uid)), snap => {
+    const pendentes = snap.docs.filter(d=>!d.data().lida).length;
+    document.getElementById('notifBadge').textContent = pendentes;
+    document.getElementById('notifBadge').style.display = pendentes ? 'inline' : 'none';
+  });
+
+  updateDoc(doc(db,'usuarios',user.uid), { ultimoLogin: serverTimestamp() });
+});
+
+window.acelerarProducao = async (prodId) => {
+  if (userData.goldstack < 50) { showToast('Você precisa de pelo menos 50 GS'); return; }
+  await updateDoc(doc(db,'producoes',prodId), { fim: new Date(Date.now() - 3600000) });
+  await updateDoc(doc(db,'usuarios',currentUser.uid), { goldstack: increment(-50) });
+  showToast('⚡ Produção acelerada em 1 hora!');
+};
+
+window.fabricarDollarz = async (receitaId) => {
+  const recSnap = await getDoc(doc(db,'receitas',receitaId));
+  const receita = recSnap.data();
+  const roll = Math.random() * 100;
+  const sucesso = roll <= receita.chance;
+  await addDoc(collection(db,'tentativas'), {
+    uid: currentUser.uid, receitaId, sucesso,
+    dollarzGerado: sucesso ? receita.dollarzGerado : 0,
+    criadoEm: serverTimestamp()
+  });
+  if (sucesso) {
+    await updateDoc(doc(db,'usuarios',currentUser.uid), { dollarz: increment(receita.dollarzGerado) });
+    showToast(`🎉 SUCESSO! Você ganhou ${receita.dollarzGerado} DollarZ!`);
+  } else {
+    showToast('❌ Tentativa falhou. Tente novamente!');
+  }
+};
+</script>
+</body>
+</html>
