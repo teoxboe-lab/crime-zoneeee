@@ -121,7 +121,7 @@ body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;
     <div class="nav-item" onclick="showPage('receitas')">📋 Receitas</div>
     <div class="nav-item" onclick="showPage('goldstack')">🟡 GoldStack</div>
     <div class="nav-section">FINANCEIRO</div>
-    <div class="nav-item" onclick="showPage('saques')">💸 Saques PIX</div>
+    <div class="nav-item" onclick="showPage('saques')">💸 Saques RESH</div>
     <div class="nav-item" onclick="showPage('transacoes')">📊 Transações</div>
     <div class="nav-section">COMUNIDADE</div>
     <div class="nav-item" onclick="showPage('pistas')">💡 Pistas</div>
@@ -270,7 +270,7 @@ body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;
         </div>
         <div class="form-group">
           <label class="form-label">MOTIVO</label>
-          <input class="form-input" id="gsMotivo" placeholder="ex: Compra via PIX R$50">
+          <input class="form-input" id="gsMotivo" placeholder="ex: Compra via RESH RESH50">
         </div>
         <div class="form-group" style="justify-content:flex-end">
           <button class="submit-btn" style="grid-column:span 1;clip-path:none" onclick="adicionarGS()">ADICIONAR GS ▶</button>
@@ -289,19 +289,19 @@ body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;
   <!-- SAQUES -->
   <div class="page" id="page-saques">
     <div class="page-header">
-      <div><div class="page-title">SAQUES PIX</div><div class="page-sub">// APROVAR E PROCESSAR SAQUES //</div></div>
+      <div><div class="page-title">SAQUES RESH</div><div class="page-sub">// APROVAR E PROCESSAR SAQUES //</div></div>
     </div>
     <div class="panel">
       <div class="panel-header"><div class="panel-title">SAQUES PENDENTES</div></div>
       <table class="table">
-        <thead><tr><th>JOGADOR</th><th>DOLLARZ</th><th>VALOR LÍQUIDO</th><th>CHAVE PIX</th><th>DATA</th><th>AÇÕES</th></tr></thead>
+        <thead><tr><th>JOGADOR</th><th>DOLLARZ</th><th>VALOR LÍQUIDO</th><th>CHAVE RESH</th><th>DATA</th><th>AÇÕES</th></tr></thead>
         <tbody id="saquesBody"><tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem">Nenhum saque pendente</td></tr></tbody>
       </table>
     </div>
     <div class="panel">
       <div class="panel-header"><div class="panel-title">SAQUES APROVADOS</div></div>
       <table class="table">
-        <thead><tr><th>JOGADOR</th><th>VALOR</th><th>CHAVE PIX</th><th>APROVADO EM</th></tr></thead>
+        <thead><tr><th>JOGADOR</th><th>VALOR</th><th>CHAVE RESH</th><th>APROVADO EM</th></tr></thead>
         <tbody id="saquesAprovBody"><tr><td colspan="4" style="color:var(--muted);text-align:center;padding:2rem">Nenhum</td></tr></tbody>
       </table>
     </div>
@@ -427,7 +427,7 @@ window.criarReceita = async () => {
   const nome = document.getElementById('recNome').value;
   const raridade = document.getElementById('recRaridade').value;
   const chance = parseInt(document.getElementById('recChance').value);
-  const dollarzGerado = parseInt(document.getElementById('recDZ').value);
+  const reshGerado = parseInt(document.getElementById('recDZ').value);
   const tempo = parseInt(document.getElementById('recTempo').value);
   const revelada = document.getElementById('recRevelada').value === 'true';
   const rows = document.querySelectorAll('#ingredientesList .ingrediente-row');
@@ -437,7 +437,7 @@ window.criarReceita = async () => {
   }).filter(i=>i);
   if (!nome || !ingredientes.length) { toast('Preencha nome e ingredientes'); return; }
   await addDoc(collection(db,'receitas'), {
-    nome, raridade, chance, dollarzGerado, tempo,
+    nome, raridade, chance, reshGerado, tempo,
     revelada, ingredientes, slots: ingredientes.length,
     criadoEm: serverTimestamp()
   });
@@ -473,13 +473,13 @@ window.adicionarGS = async () => {
 
 window.aprovarSaque = async (id, uid, valor) => {
   await updateDoc(doc(db,'saques',id), { status: 'aprovado', aprovadoEm: serverTimestamp() });
-  toast(`✅ Saque de R$ ${valor.toFixed(2)} aprovado!`);
+  toast(`✅ Saque de RESH ${valor.toFixed(2)} aprovado!`);
 };
 
-window.recusarSaque = async (id, uid, dollarz) => {
+window.recusarSaque = async (id, uid, resh) => {
   await updateDoc(doc(db,'saques',id), { status: 'recusado' });
-  await updateDoc(doc(db,'usuarios',uid), { dollarz: increment(dollarz) });
-  toast('❌ Saque recusado — DollarZ devolvido ao jogador');
+  await updateDoc(doc(db,'usuarios',uid), { resh: increment(resh) });
+  toast('❌ Saque recusado — RESH devolvido ao jogador');
 };
 
 window.publicarPista = async () => {
@@ -543,7 +543,7 @@ async function loadUsuarios() {
       <td><div style="font-weight:600">${u.nome||'—'}</div><div style="font-size:.75rem;color:var(--muted)">${u.email||'—'}</div></td>
       <td><span class="badge ${badges[u.skill]||''}">${names[u.skill]||u.skill||'—'}</span></td>
       <td style="font-family:'Share Tech Mono',monospace;color:var(--gold)">${u.goldstack||0}</td>
-      <td style="font-family:'Share Tech Mono',monospace;color:var(--green)">${u.dollarz||0}</td>
+      <td style="font-family:'Share Tech Mono',monospace;color:var(--green)">${u.resh||0}</td>
       <td style="font-size:.8rem;color:var(--muted)">${data}</td>
       <td><button class="btn-aprovar" onclick="toggleAdmin('${d.id}',${!u.isAdmin})">${u.isAdmin?'Remover Admin':'Tornar Admin'}</button></td>
     </tr>`;
@@ -565,7 +565,7 @@ async function loadReceitas() {
       <td style="font-weight:600">${r.nome}</td>
       <td><span class="badge ${tierBadge[r.raridade]||''}">${r.raridade}</span></td>
       <td style="font-family:'Share Tech Mono',monospace;color:var(--gold)">${r.chance}%</td>
-      <td style="font-family:'Share Tech Mono',monospace;color:var(--green)">${r.dollarzGerado} DZ</td>
+      <td style="font-family:'Share Tech Mono',monospace;color:var(--green)">${r.reshGerado} DZ</td>
       <td><span class="badge ${r.revelada?'badge-ok':'badge-danger'}">${r.revelada?'REVELADA':'SECRETA'}</span></td>
       <td style="display:flex;gap:.4rem">
         ${r.revelada
@@ -586,13 +586,13 @@ async function loadSaques() {
     const data = s.criadoEm?.toDate ? s.criadoEm.toDate().toLocaleDateString('pt-BR') : '—';
     return `<tr>
       <td><div style="font-weight:600">${s.nome}</div><div style="font-size:.75rem;color:var(--muted)">${s.email}</div></td>
-      <td style="color:var(--green);font-family:'Share Tech Mono',monospace">${s.dollarz} DZ</td>
-      <td style="color:var(--green);font-weight:700">R$ ${s.valorLiquido?.toFixed(2)||'—'}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.pixKey}</td>
+      <td style="color:var(--green);font-family:'Share Tech Mono',monospace">${s.resh} DZ</td>
+      <td style="color:var(--green);font-weight:700">RESH ${s.valorLiquido?.toFixed(2)||'—'}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddress}</td>
       <td style="color:var(--muted);font-size:.8rem">${data}</td>
       <td class="saque-btns">
         <button class="btn-aprovar" onclick="aprovarSaque('${d.id}','${s.uid}',${s.valorLiquido||0})">Aprovar</button>
-        <button class="btn-recusar" onclick="recusarSaque('${d.id}','${s.uid}',${s.dollarz||0})">Recusar</button>
+        <button class="btn-recusar" onclick="recusarSaque('${d.id}','${s.uid}',${s.resh||0})">Recusar</button>
       </td>
     </tr>`;
   }).join('') || '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:2rem">Nenhum pendente</td></tr>';
@@ -603,8 +603,8 @@ async function loadSaques() {
     const data = s.aprovadoEm?.toDate ? s.aprovadoEm.toDate().toLocaleDateString('pt-BR') : '—';
     return `<tr>
       <td>${s.nome}</td>
-      <td style="color:var(--green)">R$ ${s.valorLiquido?.toFixed(2)||'—'}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.pixKey}</td>
+      <td style="color:var(--green)">RESH ${s.valorLiquido?.toFixed(2)||'—'}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddress}</td>
       <td style="color:var(--muted);font-size:.8rem">${data}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:1rem">Nenhum aprovado</td></tr>';
