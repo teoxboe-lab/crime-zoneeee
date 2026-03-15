@@ -276,7 +276,7 @@ nav{
 .skill-picker{display:none;margin-top:1.5rem}
 .skill-picker.active{display:block}
 .picker-title{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;margin-bottom:1rem}
-.picker-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem}
+.picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
 .picker-skill{
   background:var(--dark3);border:2px solid var(--border);
   padding:1rem .5rem;text-align:center;cursor:pointer;transition:all .2s
@@ -285,6 +285,7 @@ nav{
 .picker-skill[data-s="mec"]{--skill-col:#F97316}
 .picker-skill[data-s="hac"]{--skill-col:#06B6D4}
 .picker-skill[data-s="arm"]{--skill-col:#8B5CF6}
+.picker-skill[data-s="bos"]{--skill-col:#F5C518}
 .picker-skill .ps-icon{font-size:1.5rem;display:block;margin-bottom:.3rem}
 .picker-skill .ps-name{font-family:'Bebas Neue',sans-serif;font-size:1rem;color:var(--text)}
 .picker-skill .ps-warn{font-size:.65rem;color:var(--muted);font-family:'Share Tech Mono',monospace;margin-top:.2rem}
@@ -595,6 +596,11 @@ footer .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:v
           <div class="ps-name">Armeiro</div>
           <div class="ps-warn">Armas • Mun.</div>
         </div>
+        <div class="picker-skill" data-s="bos" onclick="selectSkill(this)">
+          <span class="ps-icon">👑</span>
+          <div class="ps-name">Boss</div>
+          <div class="ps-warn">Fabrica DollarZ</div>
+        </div>
       </div>
       <button class="confirm-btn" id="confirmBtn" onclick="confirmSkill()">CONFIRMAR SKILL ▶</button>
     </div>
@@ -641,7 +647,7 @@ footer .footer-logo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:v
       const userRef = doc(db, 'usuarios', user.uid);
       const snap = await getDoc(userRef);
       if (snap.exists() && snap.data().skill) {
-        window.location.href = '/crime-zone11/dashboard.html';
+        window.location.href = '/crime-zoneeee/dashboard.html';
       } else {
         document.getElementById('skillPicker').classList.add('active');
         document.getElementById('googleBtn').style.display = 'none';
@@ -678,7 +684,7 @@ async function confirmSkill(){
   if(!selectedSkill) return;
   const user = window._auth.currentUser;
   if(!user) return;
-  const skillNames = {mec:'Mecânico', hac:'Hacker', arm:'Armeiro'};
+  const skillNames = {mec:'Mecânico', hac:'Hacker', arm:'Armeiro', bos:'Boss'};
   await window._setDoc(window._doc(window._db,'usuarios',user.uid), {
     uid: user.uid,
     nome: user.displayName,
@@ -693,7 +699,7 @@ async function confirmSkill(){
     ultimoLogin: window._serverTimestamp(),
     isAdmin: false
   });
-  window.location.href = '/crime-zone11/dashboard.html';
+  window.location.href = '/crime-zoneeee/dashboard.html';
 }
 </script>
 </body>

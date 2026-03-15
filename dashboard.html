@@ -521,13 +521,13 @@ const SKILL_ITEMS = {
   ]
 };
 
-const SKILL_COLORS = {mec:'#F97316',hac:'#06B6D4',arm:'#8B5CF6'};
-const SKILL_NAMES = {mec:'Mecânico',hac:'Hacker',arm:'Armeiro'};
+const SKILL_COLORS = {mec:'#F97316',hac:'#06B6D4',arm:'#8B5CF6',bos:'#F5C518'};
+const SKILL_NAMES = {mec:'Mecânico',hac:'Hacker',arm:'Armeiro',bos:'Boss'};
 
 let currentUser = null;
 let userData = null;
 
-window.logout = async () => { await signOut(auth); window.location.href='/crime-zone11/index.html'; };
+window.logout = async () => { await signOut(auth); window.location.href='/crime-zoneeee/index.html'; };
 
 window.showPage = (id) => {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -543,10 +543,25 @@ window.showToast = (msg) => {
 };
 
 function loadFabGrid(skill, qtdSkills) {
-  const items = SKILL_ITEMS[skill] || [];
   const multiplier = {1:1,2:3,3:6,4:10}[qtdSkills] || 1;
   const color = SKILL_COLORS[skill];
   document.getElementById('skillFabTitle').textContent = SKILL_NAMES[skill].toUpperCase() + ' — FABRICAÇÃO';
+  const grid = document.getElementById('fabGrid');
+
+  if (skill === 'bos') {
+    grid.innerHTML = `
+    <div style="grid-column:1/-1;background:var(--dark3);border:1px solid rgba(245,197,24,.3);padding:1.5rem;text-align:center">
+      <div style="font-size:2rem;margin-bottom:.5rem">👑</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--gold);margin-bottom:.5rem">BOSS — FABRICAR DOLLARZ</div>
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:1.25rem">Use receitas secretas para fabricar DollarZ. Vá para a aba <strong style="color:var(--gold)">Receitas</strong> e escolha uma combinação de itens.</p>
+      <button class="fab-btn" style="max-width:300px;margin:0 auto;display:block" onclick="showPage('receitas');document.querySelectorAll('.nav-item')[3].classList.add('active');document.querySelectorAll('.nav-item').forEach((n,i)=>{if(i!==3)n.classList.remove('active')})">
+        VER RECEITAS DISPONÍVEIS ▶
+      </button>
+    </div>`;
+    return;
+  }
+
+  const items = SKILL_ITEMS[skill] || [];
   const grid = document.getElementById('fabGrid');
   grid.innerHTML = items.map(item => {
     const custoReal = item.custo * multiplier;
@@ -644,10 +659,10 @@ function calcMktRecebe() {
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href='/crime-zone11/index.html'; return; }
+  if (!user) { window.location.href='/crime-zoneeee/index.html'; return; }
   currentUser = user;
   const snap = await getDoc(doc(db,'usuarios',user.uid));
-  if (!snap.exists()) { window.location.href='/crime-zone11/index.html'; return; }
+  if (!snap.exists()) { window.location.href='/crime-zoneeee/index.html'; return; }
   userData = snap.data();
 
   document.getElementById('userAvatar').src = user.photoURL || '';
