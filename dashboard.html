@@ -244,14 +244,14 @@ body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;
     </div>
   </div>
   <nav class="sidebar-nav">
-    <div class="nav-item active" onclick="showPage('dashboard')"><span class="nav-icon">◈</span> Dashboard</div>
-    <div class="nav-item" onclick="showPage('fabricar')"><span class="nav-icon">⚙</span> Fabricar</div>
-    <div class="nav-item" onclick="showPage('estoque')"><span class="nav-icon">📦</span> Estoque</div>
-    <div class="nav-item" onclick="showPage('receitas')"><span class="nav-icon">📋</span> Receitas</div>
-    <div class="nav-item" onclick="showPage('marketplace')"><span class="nav-icon">🏪</span> Marketplace</div>
-    <div class="nav-item" onclick="showPage('venda-privada')"><span class="nav-icon">🤝</span> Venda Privada</div>
-    <div class="nav-item" onclick="showPage('notificacoes')"><span class="nav-icon">🔔</span> Notificações <span id="notifBadge" style="display:none;background:var(--red);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:2px;margin-left:auto">0</span></div>
-    <div class="nav-item" onclick="showPage('saque')"><span class="nav-icon">💸</span> Saque RESH</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◈</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('fabricar',this)"><span class="nav-icon">⚙</span> Fabricar</div>
+    <div class="nav-item" onclick="showPage('estoque',this)"><span class="nav-icon">📦</span> Estoque</div>
+    <div class="nav-item" onclick="showPage('receitas',this)"><span class="nav-icon">📋</span> Receitas</div>
+    <div class="nav-item" onclick="showPage('marketplace',this)"><span class="nav-icon">🏪</span> Marketplace</div>
+    <div class="nav-item" onclick="showPage('venda-privada',this)"><span class="nav-icon">🤝</span> Venda Privada</div>
+    <div class="nav-item" onclick="showPage('notificacoes',this)"><span class="nav-icon">🔔</span> Notificações <span id="notifBadge" style="display:none;background:var(--red);color:#fff;font-size:.65rem;padding:.1rem .4rem;border-radius:2px;margin-left:auto">0</span></div>
+    <div class="nav-item" onclick="showPage('saque',this)"><span class="nav-icon">💸</span> Saque RESH</div>
   </nav>
   <div class="sidebar-bottom">
     <button class="logout-btn" onclick="logout()">SAIR DA CONTA</button>
@@ -486,14 +486,14 @@ import {
   query, where, onSnapshot, orderBy, serverTimestamp, increment
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBZUVGIfEPCoI9yJ159DhUKrC2_lPV9Vv0",
-    authDomain: "rendaextra-c0084.firebaseapp.com",
-    projectId: "rendaextra-c0084",
-    storageBucket: "rendaextra-c0084.firebasestorage.app",
-    messagingSenderId: "880584827698",
-    appId: "1:880584827698:web:d9920bfabf1b93ad9aad2b",
-    measurementId: "G-QHLXVRGRDJ"
+      const firebaseConfig = {
+    apiKey: "AIzaSyBnbecFvKoPUokNKD2JeAS7kKTO9z4dDf0",
+    authDomain: "criezone.firebaseapp.com",
+    projectId: "criezone",
+    storageBucket: "criezone.firebasestorage.app",
+    messagingSenderId: "389809614124",
+    appId: "1:389809614124:web:47530abb44b5f392ef5089",
+    measurementId: "G-TND0HXDMV8"
   };
 
 const app = initializeApp(firebaseConfig);
@@ -527,13 +527,20 @@ const SKILL_NAMES = {mec:'Mecânico',hac:'Hacker',arm:'Armeiro',bos:'Boss'};
 let currentUser = null;
 let userData = null;
 
-window.logout = async () => { await signOut(auth); window.location.href='/crime-zoneeee/index.html'; };
+window.logout = async () => { await signOut(auth); window.location.href='/index.html'; };
 
-window.showPage = (id) => {
+window.showPage = (id, el) => {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const page = document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  if(el) el.classList.add('active');
+  else {
+    document.querySelectorAll('.nav-item').forEach(n=>{
+      if(n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+id+"'"))
+        n.classList.add('active');
+    });
+  }
 };
 
 window.showToast = (msg) => {
@@ -717,10 +724,10 @@ function calcMktRecebe() {
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href='/crime-zoneeee/index.html'; return; }
+  if (!user) { window.location.href='/index.html'; return; }
   currentUser = user;
   const snap = await getDoc(doc(db,'usuarios',user.uid));
-  if (!snap.exists()) { window.location.href='/crime-zoneeee/index.html'; return; }
+  if (!snap.exists()) { window.location.href='/index.html'; return; }
   userData = snap.data();
 
   document.getElementById('userAvatar').src = user.photoURL || '';

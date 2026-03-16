@@ -115,17 +115,17 @@ body{background:var(--dark);color:var(--text);font-family:'Rajdhani',sans-serif;
   </div>
   <nav class="sidebar-nav">
     <div class="nav-section">VISÃO GERAL</div>
-    <div class="nav-item active" onclick="showPage('overview')">◈ Dashboard</div>
+    <div class="nav-item active" onclick="showPage('overview',this)">◈ Dashboard</div>
     <div class="nav-section">GESTÃO</div>
-    <div class="nav-item" onclick="showPage('usuarios')">👤 Usuários</div>
-    <div class="nav-item" onclick="showPage('receitas')">📋 Receitas</div>
-    <div class="nav-item" onclick="showPage('goldstack')">🟡 GoldStack</div>
+    <div class="nav-item" onclick="showPage('usuarios',this)">👤 Usuários</div>
+    <div class="nav-item" onclick="showPage('receitas',this)">📋 Receitas</div>
+    <div class="nav-item" onclick="showPage('goldstack',this)">🟡 GoldStack</div>
     <div class="nav-section">FINANCEIRO</div>
-    <div class="nav-item" onclick="showPage('saques')">💸 Saques RESH</div>
-    <div class="nav-item" onclick="showPage('transacoes')">📊 Transações</div>
+    <div class="nav-item" onclick="showPage('saques',this)">💸 Saques RESH</div>
+    <div class="nav-item" onclick="showPage('transacoes',this)">📊 Transações</div>
     <div class="nav-section">COMUNIDADE</div>
-    <div class="nav-item" onclick="showPage('pistas')">💡 Pistas</div>
-    <div class="nav-item" onclick="showPage('marketplace-admin')">🏪 Marketplace</div>
+    <div class="nav-item" onclick="showPage('pistas',this)">💡 Pistas</div>
+    <div class="nav-item" onclick="showPage('marketplace-admin',this)">🏪 Marketplace</div>
   </nav>
 </aside>
 
@@ -381,14 +381,14 @@ import {
   query, where, orderBy, onSnapshot, serverTimestamp, increment, limit
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyBZUVGIfEPCoI9yJ159DhUKrC2_lPV9Vv0",
-    authDomain: "rendaextra-c0084.firebaseapp.com",
-    projectId: "rendaextra-c0084",
-    storageBucket: "rendaextra-c0084.firebasestorage.app",
-    messagingSenderId: "880584827698",
-    appId: "1:880584827698:web:d9920bfabf1b93ad9aad2b",
-    measurementId: "G-QHLXVRGRDJ"
+      const firebaseConfig = {
+    apiKey: "AIzaSyBnbecFvKoPUokNKD2JeAS7kKTO9z4dDf0",
+    authDomain: "criezone.firebaseapp.com",
+    projectId: "criezone",
+    storageBucket: "criezone.firebasestorage.app",
+    messagingSenderId: "389809614124",
+    appId: "1:389809614124:web:47530abb44b5f392ef5089",
+    measurementId: "G-TND0HXDMV8"
   };
 
 const app = initializeApp(firebaseConfig);
@@ -401,11 +401,12 @@ const toast = (msg) => {
   setTimeout(()=>t.classList.remove('show'),3000);
 };
 
-window.showPage = (id) => {
+window.showPage = (id, el) => {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+id).classList.add('active');
-  event.currentTarget.classList.add('active');
+  const page = document.getElementById('page-'+id);
+  if(page) page.classList.add('active');
+  if(el) el.classList.add('active');
 };
 
 window.updateChancePreview = () => {
@@ -588,7 +589,7 @@ async function loadSaques() {
       <td><div style="font-weight:600">${s.nome}</div><div style="font-size:.75rem;color:var(--muted)">${s.email}</div></td>
       <td style="color:var(--green);font-family:'Share Tech Mono',monospace">${s.resh} DZ</td>
       <td style="color:var(--green);font-weight:700">RESH ${s.valorLiquido?.toFixed(2)||'—'}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddress}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddressAddress}</td>
       <td style="color:var(--muted);font-size:.8rem">${data}</td>
       <td class="saque-btns">
         <button class="btn-aprovar" onclick="aprovarSaque('${d.id}','${s.uid}',${s.valorLiquido||0})">Aprovar</button>
@@ -604,7 +605,7 @@ async function loadSaques() {
     return `<tr>
       <td>${s.nome}</td>
       <td style="color:var(--green)">RESH ${s.valorLiquido?.toFixed(2)||'—'}</td>
-      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddress}</td>
+      <td style="font-family:'Share Tech Mono',monospace;font-size:.8rem">${s.walletAddressAddress}</td>
       <td style="color:var(--muted);font-size:.8rem">${data}</td>
     </tr>`;
   }).join('') || '<tr><td colspan="4" style="color:var(--muted);text-align:center;padding:1rem">Nenhum aprovado</td></tr>';
@@ -644,11 +645,11 @@ async function loadMarketplace() {
 }
 
 onAuthStateChanged(auth, async (user) => {
-  if (!user) { window.location.href='/crime-zoneeee/index.html'; return; }
+  if (!user) { window.location.href='/index.html'; return; }
   const snap = await getDoc(doc(db,'usuarios',user.uid));
   if (!snap.exists() || !snap.data().isAdmin) {
     alert('Acesso negado — apenas administradores');
-    window.location.href='/crime-zoneeee/dashboard.html'; return;
+    window.location.href='/dashboard.html'; return;
   }
   loadOverview();
   loadReceitas();
